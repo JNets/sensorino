@@ -47,7 +47,7 @@ public class Sensors {
 		FileOutputStream out = null;
 		if(!register.exists()){
 			register.createNewFile();
-			out = new FileOutputStream(register);
+			out = new FileOutputStream(register, true);
 			String columNames = new String();			
 			int i = 0;
 			for(String key:fields.keySet()){
@@ -61,7 +61,7 @@ public class Sensors {
 			out.write(columNames.getBytes());
 		}
 		if(out == null){
-			out = new FileOutputStream(register);
+			out = new FileOutputStream(register, true);
 		}
 		String newRow = new String();
 		int i = 0;
