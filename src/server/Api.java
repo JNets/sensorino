@@ -18,7 +18,7 @@ public abstract class Api {
 		resourcePath = resourcePath.substring(apiPath.length());		
 		switch(resourcePath){
 		case "/sensors":						
-			return new Resource("JSON", Sensors.getJson().getBytes());			
+			return new Resource("application/json", Sensors.getJson().getBytes());			
 		case "/stopSensorinoServer":
 			Coordinator.stop();								
 			return new Resource("text", "Sersorino Stoped!".getBytes());

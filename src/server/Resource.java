@@ -64,7 +64,10 @@ public class Resource {
 					break;
 				case "htm":
 					outContent = "text/html";
-					break;				
+					break;
+				case "csv":
+					outContent = "text/csv";
+					break;
 			}				
 		}else if(resoursePath.endsWith("/")){
 			outContent = "text/html";
