@@ -1,5 +1,7 @@
 package server;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,10 +22,59 @@ public class Sensors {
 	
 	protected static void putJson(String jsonSensor) throws Exception{		
 		if(isValidFormat(jsonSensor)){
-			sensors.put(findSensorId(jsonSensor), jsonSensor);
+			String id = findSensorId(jsonSensor);
+			addRegister(id, jsonSensor);
+			sensors.put(id, jsonSensor);
 		}else{
 			throw new Exception("Invalid Sensor Format");
 		}
+	}
+	
+	private static Map<String, String> parse(String sensor) throws Exception{
+		Map<String, String > fields = new HashMap<String, String>();
+		String[] properties = sensor.trim().substring(1, sensor.length() - 1).split(",");		
+		for(String propertie:properties){
+			String[] key_value = propertie.split(":", 2);
+			fields.put(key_value[0].trim(), key_value[1].trim());
+		}
+		return fields;		
+	}
+	
+	protected static void addRegister(String id, String sensor) throws Exception{
+		Map<String, String> fields = parse(sensor);
+		String registerPath = id.substring(1, id.length() - 1);		
+		File register = new File(Resource.getRootpath() + "/" + registerPath);
+		FileOutputStream out = null;
+		if(!register.exists()){
+			register.createNewFile();
+			out = new FileOutputStream(register);
+			String columNames = new String();			
+			int i = 0;
+			for(String key:fields.keySet()){
+				i++;
+				if(i == fields.size()){
+					columNames += key + "\n";
+				}else{
+					columNames += key + ";";
+				}
+			}
+			out.write(columNames.getBytes());
+		}
+		if(out == null){
+			out = new FileOutputStream(register);
+		}
+		String newRow = new String();
+		int i = 0;
+		for(String field:fields.values()){
+			i++;
+			if(i == fields.size()){
+				newRow += field + "\n";
+			}else{
+				newRow += field + ";";
+			}
+		}
+		out.write(newRow.getBytes());
+		out.close();
 	}
 	
 	public static void setFieldId(String field){

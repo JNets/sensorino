@@ -89,4 +89,8 @@ public class Resource {
 	public static void setRootpath(String rootPath){		
 		Resource.rootPath = rootPath;
 	}
+	
+	public static String getRootpath(){		
+		return rootPath;
+	}
 }
