@@ -43,7 +43,7 @@ public class Sensors {
 	protected static void addRegister(String id, String sensor) throws Exception{
 		Map<String, String> fields = parse(sensor);
 		String registerPath = id.substring(1, id.length() - 1);		
-		File register = new File(Resource.getRootpath() + "/" + registerPath);
+		File register = new File(Resource.getRootpath() + "/" + registerPath + ".csv");
 		FileOutputStream out = null;
 		if(!register.exists()){
 			register.createNewFile();
