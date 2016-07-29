@@ -2,6 +2,8 @@ package server;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,31 +50,23 @@ public class Sensors {
 		if(!register.exists()){
 			register.createNewFile();
 			out = new FileOutputStream(register, true);
-			String columNames = new String();			
-			int i = 0;
-			for(String key:fields.keySet()){
-				i++;
-				if(i == fields.size()){
-					columNames += key + "\n";
-				}else{
-					columNames += key + ";";
-				}
+			String columNames = new String();						
+			for(String key:fields.keySet()){								
+				columNames += key + ";";				
 			}
+			columNames += "Server Time\n";
 			out.write(columNames.getBytes());
 		}
 		if(out == null){
 			out = new FileOutputStream(register, true);
 		}
-		String newRow = new String();
-		int i = 0;
-		for(String field:fields.values()){
-			i++;
-			if(i == fields.size()){
-				newRow += field + "\n";
-			}else{
-				newRow += field + ";";
-			}
+		String newRow = new String();		
+		for(String field:fields.values()){						
+			newRow += field + ";";			
 		}
+		Date time = new Date();
+		SimpleDateFormat timeFormat = new SimpleDateFormat("dd/mm/yyyy HH:mm:ss");
+		newRow += timeFormat.format(time) + "\n";
 		out.write(newRow.getBytes());
 		out.close();
 	}

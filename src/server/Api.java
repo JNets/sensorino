@@ -15,7 +15,7 @@ public abstract class Api {
 	}
 	
 	public synchronized static Resource get(String resourcePath) throws Exception{
-		resourcePath = resourcePath.substring(apiPath.length());		
+		resourcePath = resourcePath.substring(apiPath.length());
 		switch(resourcePath){
 		case "/sensors":						
 			return new Resource("application/json", Sensors.getJson().getBytes());			
