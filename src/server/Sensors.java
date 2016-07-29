@@ -65,7 +65,7 @@ public class Sensors {
 			newRow += field + ";";			
 		}
 		Date time = new Date();
-		SimpleDateFormat timeFormat = new SimpleDateFormat("dd/mm/yyyy HH:mm:ss");
+		SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		newRow += timeFormat.format(time) + "\n";
 		out.write(newRow.getBytes());
 		out.close();
