@@ -14,11 +14,18 @@ public abstract class Api {
 		apiPath = path;
 	}
 	
-	public synchronized static Resource get(String resourcePath) throws Exception{
-		resourcePath = resourcePath.substring(apiPath.length());
+	public synchronized static Resource get(String url) throws Exception{
+		String[] url_split = url.split("\\?", 2);
+		String resourcePath = url_split[0].substring(apiPath.length());
+		String extra = null;
+		if(url_split.length == 2){
+			extra = url_split[1].replace("%20", " ");
+		}
 		switch(resourcePath){
 		case "/sensors":						
-			return new Resource("application/json", Sensors.getJson().getBytes());			
+			return new Resource("application/json", Sensors.getJson().getBytes());
+		case"/sensors/register":
+			return Sensors.readRegister(extra);
 		case "/stopSensorinoServer":
 			Coordinator.stop();								
 			return new Resource("text", "Sersorino Stoped!".getBytes());

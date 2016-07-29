@@ -1,6 +1,7 @@
 package server;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -69,6 +70,76 @@ public class Sensors {
 		newRow += timeFormat.format(time) + "\n";
 		out.write(newRow.getBytes());
 		out.close();
+	}
+	
+	protected static Resource readRegister(String request) throws Exception{
+		String id = null; 
+		String ti = null; 
+		String tf = null;
+		String[] fields = request.split("&");
+		for(String field:fields){
+			String[] key_value = field.split("=");
+			switch(key_value[0].trim()){
+			case "id":
+				id = key_value[1].trim();
+				break;
+			case "ti":
+				ti = key_value[1].trim();
+				break;
+			case "tf":
+				tf = key_value[1].trim();
+				break;
+			default:
+			}
+		}
+		SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		Date initTime = timeFormat.parse(ti);
+		Date endTime = timeFormat.parse(tf);
+		ti = ti.replace(" ", "_");
+		tf = tf.replace(" ", "_");
+		ti = ti.replace("/", "-");
+		tf = tf.replace("/", "-");
+		String timeRegisterPath = "/" + id + "_" + ti + "_" + tf + ".csv";
+		File timeRegister = new File(Resource.getRootpath() + timeRegisterPath);
+		if(!timeRegister.exists()){
+			timeRegister.createNewFile();
+			File register = new File(Resource.getRootpath() + "/" + id + ".csv");
+			FileInputStream in = new FileInputStream(register);			
+			FileOutputStream out = new FileOutputStream(timeRegister);					
+			byte[] buffer = new byte[500];
+			int i = 0;
+			int j = 0;
+			boolean isFirstRow = true;
+			while(in.available() > 0){
+				byte c = (byte) in.read();
+				if(c == ';'){
+					j = i;
+				}
+				if(c == '\n'){
+					String row = new String(buffer, 0, i);
+					i = 0;
+					row = row.substring(0, j);
+					if(isFirstRow){
+						isFirstRow = false;
+						out.write((row + "\n").getBytes());
+					}else{
+						String ts = row.substring(j + 1);
+						Date serverTime = timeFormat.parse(ts);
+						if(serverTime.after(initTime)){
+							if(serverTime.after(endTime)){
+								break;
+							}
+							out.write((row + "\n").getBytes());
+						}						
+					}
+				}else{
+					buffer[i++] = c;
+				}
+			}
+			in.close();
+			out.close();
+		}
+		return Resource.loadFromUrl(timeRegisterPath);
 	}
 	
 	public static void setFieldId(String field){
