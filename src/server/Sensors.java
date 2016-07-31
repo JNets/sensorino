@@ -76,34 +76,46 @@ public class Sensors {
 		String id = null; 
 		String ti = null; 
 		String tf = null;
-		String[] fields = request.split("&");
-		for(String field:fields){
-			String[] key_value = field.split("=");
-			switch(key_value[0].trim()){
-			case "id":
-				id = key_value[1].trim();
-				break;
-			case "ti":
-				ti = key_value[1].trim();
-				break;
-			case "tf":
-				tf = key_value[1].trim();
-				break;
-			default:
+		Date initTime;
+		Date endTime;
+		SimpleDateFormat timeFormat;
+		try{
+			String[] fields = request.split("&");		
+			for(String field:fields){
+				String[] key_value = field.split("=");
+				switch(key_value[0].trim()){
+				case "id":
+					id = key_value[1].trim();
+					break;
+				case "ti":
+					ti = key_value[1].trim();
+					break;
+				case "tf":
+					tf = key_value[1].trim();
+					break;
+				default:
+				}
 			}
+			timeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			initTime = timeFormat.parse(ti);
+			endTime = timeFormat.parse(tf);
+		}catch (Exception e) {
+			throw new Exception("Invalid Time Format");
 		}
-		SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-		Date initTime = timeFormat.parse(ti);
-		Date endTime = timeFormat.parse(tf);
 		ti = ti.replace(" ", "_");
 		tf = tf.replace(" ", "_");
 		ti = ti.replace("/", "-");
 		tf = tf.replace("/", "-");
+		ti = ti.replace(":", "-");
+		tf = tf.replace(":", "-");
 		String timeRegisterPath = "/" + id + "_" + ti + "_" + tf + ".csv";
 		File timeRegister = new File(Resource.getRootpath() + timeRegisterPath);
 		if(!timeRegister.exists()){
 			timeRegister.createNewFile();
 			File register = new File(Resource.getRootpath() + "/" + id + ".csv");
+			if(!register.exists()){
+				throw new Exception("Sensor not found");
+			}
 			FileInputStream in = new FileInputStream(register);			
 			FileOutputStream out = new FileOutputStream(timeRegister);					
 			byte[] buffer = new byte[500];
@@ -116,14 +128,14 @@ public class Sensors {
 					j = i;
 				}
 				if(c == '\n'){
-					String row = new String(buffer, 0, i);
+					String rowtime = new String(buffer, 0, i);
 					i = 0;
-					row = row.substring(0, j);
+					String row = rowtime.substring(0, j);
 					if(isFirstRow){
 						isFirstRow = false;
 						out.write((row + "\n").getBytes());
 					}else{
-						String ts = row.substring(j + 1);
+						String ts = rowtime.substring(j + 1);
 						Date serverTime = timeFormat.parse(ts);
 						if(serverTime.after(initTime)){
 							if(serverTime.after(endTime)){
@@ -138,8 +150,10 @@ public class Sensors {
 			}
 			in.close();
 			out.close();
-		}
-		return Resource.loadFromUrl(timeRegisterPath);
+		}		
+		Resource response = new Resource("text/url", timeRegisterPath.getBytes());
+		Resource.addToBlackList(timeRegisterPath);
+		return response;
 	}
 	
 	public static void setFieldId(String field){

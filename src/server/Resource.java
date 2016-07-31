@@ -2,19 +2,25 @@ package server;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 import http.HttpRequest;
 
 public class Resource {	 
 	
 	private static String rootPath;
-	
+	private static Set<String> blackList = new HashSet<String>();
 	private String contentType;
 	private String dateTime;
 	private byte[] body;
 	
 	public Resource(){
 		
+	}
+	
+	public static void addToBlackList(String path){
+		blackList.add(path);
 	}
 	
 	public Resource(String contentType, byte[] body){
@@ -78,10 +84,15 @@ public class Resource {
 		byte[] buffer = new byte[(int) file.length()];			
 		FileInputStream in = new FileInputStream(file);
 		in.read(buffer);							 	
+		if(blackList.contains(resoursePath)){
+			file.delete();
+			blackList.remove(resoursePath);
+		}
 		in.close();								
 		Resource resource = new Resource();
 		resource.setBody(buffer);
 		resource.setContentType(outContent);
+		
 		return resource;		
 	}			
 	
